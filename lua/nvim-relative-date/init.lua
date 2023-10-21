@@ -1,6 +1,7 @@
 local M = {}
 
 local relative_date = require("nvim-relative-date.relative_date")
+local timers = require("nvim-relative-date.timers")
 
 -- TODO: allow enabling/disabling per buffer
 
@@ -62,13 +63,23 @@ local function show_relative_dates(bufnr)
 	end
 end
 
+---@type table<integer, (fun(bufid: integer): nil) | nil>
+local debounced_update_buffer_map = {}
+
 function M.setup()
 	local augroup = vim.api.nvim_create_augroup("nvim-relative-date", {})
 
 	vim.api.nvim_create_autocmd({ "BufWinEnter", "WinScrolled", "TextChanged", "TextChangedI" }, {
 		callback = function(event)
-			-- TODO: debounce
-			show_relative_dates(event.buf)
+			local bufid = event.buf
+
+			local debounced_update_buffer = debounced_update_buffer_map[bufid]
+			if debounced_update_buffer == nil then
+				debounced_update_buffer = timers.debounce(show_relative_dates, 100)
+				debounced_update_buffer_map[bufid] = debounced_update_buffer
+			end
+
+			debounced_update_buffer(bufid)
 		end,
 		pattern = "*",
 		group = augroup,
