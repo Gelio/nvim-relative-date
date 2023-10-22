@@ -96,7 +96,7 @@ function M.setup(config)
 		callback = function(opt)
 			local bufnr = opt.buf
 
-			if current_config.should_enable_buffer(bufnr) then
+			if current_config.should_attach_to_buffer(bufnr) then
 				M.attach_buffer(bufnr)
 			end
 		end,

@@ -132,7 +132,7 @@ async_tests.it("only updates the buffers that were changed", function()
 
 	sleep_through_debounce()
 
-	-- NOTE: js buffers are not enabled automatically
+	-- NOTE: js buffers are not attached automatically
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(js_bufnr))
 	-- NOTE: markdown buffer has not been changed yet
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(markdown_bufnr))
@@ -144,7 +144,7 @@ async_tests.it("only updates the buffers that were changed", function()
 
 	sleep_through_debounce()
 
-	-- NOTE: js buffers are not enabled automatically
+	-- NOTE: js buffers are not attached automatically
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(js_bufnr))
 	-- NOTE: markdown buffer has not been changed yet
 	extmarks_utils.expect_extmarks_to_match(expected_extmarks, extmarks_utils.get_all_extmarks(markdown_bufnr))
@@ -159,7 +159,7 @@ async_tests.it("only updates the buffers that were changed", function()
 
 	sleep_through_debounce()
 
-	-- NOTE: js buffers are not enabled automatically
+	-- NOTE: js buffers are not attached automatically
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(js_bufnr))
 	-- NOTE: the plugin is disabled in the markdown buffer
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(markdown_bufnr))
