@@ -68,6 +68,20 @@ local function detach_all_buffers()
 	end
 end
 
+local function create_user_commands()
+	vim.api.nvim_create_user_command("RelativeDateAttach", function()
+		M.attach_buffer(vim.api.nvim_get_current_buf())
+	end, { desc = "Attach nvim-relative-date to the current buffer" })
+
+	vim.api.nvim_create_user_command("RelativeDateDetach", function()
+		M.detach_buffer(vim.api.nvim_get_current_buf())
+	end, { desc = "Detach nvim-relative-date to the current buffer" })
+
+	vim.api.nvim_create_user_command("RelativeDateToggle", function()
+		M.toggle_buffer(vim.api.nvim_get_current_buf())
+	end, { desc = "Toggle nvim-relative-date in the current buffer" })
+end
+
 ---@param config nvim_relative_date.Config?
 function M.setup(config)
 	if current_config ~= nil then
@@ -87,6 +101,8 @@ function M.setup(config)
 			end
 		end,
 	})
+
+	create_user_commands()
 end
 
 ---@param bufnr integer
