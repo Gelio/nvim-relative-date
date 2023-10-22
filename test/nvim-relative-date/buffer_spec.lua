@@ -91,5 +91,31 @@ RD:                                (yesterday)
 
 		local extmarks = vim.api.nvim_buf_get_extmarks(bufnr, -1, 0, -1, { details = true })
 		expect_extmarks_to_match(expected_extmarks, extmarks)
+
+		-- NOTE: simulate some changes (the date in the first line changed)
+		lines, expected_extmarks = parse_test_text([[
+      Hello, today is 2023-09-22 and I am working
+      on nvim-relative-date, which is a super cool
+      project I started 2023-10-21.
+RD:                                (yesterday)
+      I hope to finish it by 2024-01-01
+
+
+      Last Monday was 2023-10-09
+      and tomorrow is 2023-10-23
+    ]])
+		vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
+
+		relative_date_buffer.show_relative_dates_in_line_range(
+			bufnr,
+			1,
+			-- NOTE: only show the relative dates in the first paragraph
+			4,
+			highlight_group,
+			current_osdate
+		)
+
+		extmarks = vim.api.nvim_buf_get_extmarks(bufnr, -1, 0, -1, { details = true })
+		expect_extmarks_to_match(expected_extmarks, extmarks)
 	end)
 end)

@@ -16,8 +16,6 @@ function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highli
 
 	local visible_buffer_lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, true)
 
-	vim.api.nvim_buf_clear_namespace(bufnr, namespace_id, start_line - 1, end_line)
-
 	for line_index, line in ipairs(visible_buffer_lines) do
 		local match_start_index = 1
 
@@ -43,6 +41,7 @@ function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highli
 						{ string.format(" (%s)", target_relative_date), highlight_group },
 					},
 					virt_text_pos = "inline",
+					right_gravity = false,
 				})
 			end
 		end
