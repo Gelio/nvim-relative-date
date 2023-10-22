@@ -2,6 +2,7 @@ local M = {}
 
 local timers = require("nvim-relative-date.timers")
 local relative_date_buffer = require("nvim-relative-date.buffer")
+local relative_date_autocmd = require("nvim-relative-date.autocmd")
 
 -- TODO: allow enabling/disabling per buffer
 
@@ -15,6 +16,7 @@ local function get_visible_window_lines_range(winid)
 end
 
 local function show_relative_dates(bufnr)
+	vim.print("Updating for", bufnr)
 	if not vim.api.nvim_buf_is_valid(bufnr) then
 		return
 	end
@@ -43,23 +45,26 @@ end
 ---@type table<integer, (fun(bufid: integer): nil) | nil>
 local debounced_update_buffer_map = {}
 
+---@param bufid integer
+local function debounced_show_relative_dates(bufid)
+	vim.print("Debounced update for", bufid)
+	local debounced_update_buffer = debounced_update_buffer_map[bufid]
+	if debounced_update_buffer == nil then
+		debounced_update_buffer = timers.debounce(show_relative_dates, debounce_ms)
+		debounced_update_buffer_map[bufid] = debounced_update_buffer
+	end
+
+	debounced_update_buffer(bufid)
+end
+
 function M.setup()
-	local augroup = vim.api.nvim_create_augroup("nvim-relative-date", {})
-
-	vim.api.nvim_create_autocmd({ "BufWinEnter", "WinScrolled", "TextChanged", "TextChangedI" }, {
-		callback = function(opts)
-			local bufid = opts.buf
-
-			local debounced_update_buffer = debounced_update_buffer_map[bufid]
-			if debounced_update_buffer == nil then
-				debounced_update_buffer = timers.debounce(show_relative_dates, debounce_ms)
-				debounced_update_buffer_map[bufid] = debounced_update_buffer
-			end
-
-			debounced_update_buffer(bufid)
+	relative_date_autocmd.setup({
+		filetypes = { "markdown" },
+		should_enable_buffer = function(bufnr)
+			return vim.bo[bufnr].buftype == ""
 		end,
-		pattern = "*",
-		group = augroup,
+		invalidate_buffer = show_relative_dates,
+		debounced_invalidate_buffer = debounced_show_relative_dates,
 	})
 end
 
