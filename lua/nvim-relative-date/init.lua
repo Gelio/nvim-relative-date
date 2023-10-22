@@ -16,7 +16,6 @@ local function get_visible_window_lines_range(winid)
 end
 
 local function show_relative_dates(bufnr)
-	vim.print("Updating for", bufnr)
 	if not vim.api.nvim_buf_is_valid(bufnr) then
 		return
 	end
@@ -47,7 +46,6 @@ local debounced_update_buffer_map = {}
 
 ---@param bufid integer
 local function debounced_show_relative_dates(bufid)
-	vim.print("Debounced update for", bufid)
 	local debounced_update_buffer = debounced_update_buffer_map[bufid]
 	if debounced_update_buffer == nil then
 		debounced_update_buffer = timers.debounce(show_relative_dates, debounce_ms)
