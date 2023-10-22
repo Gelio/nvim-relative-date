@@ -28,20 +28,6 @@ function M.setup(opts)
 			end
 		end,
 	})
-
-	-- TODO: see if this can be replaced by registering a buffer-local WinScrolled autocmd
-	vim.api.nvim_create_autocmd("WinScrolled", {
-		group = augroup,
-		callback = function(opt)
-			local bufnr = opt.buf
-
-			-- TODO: update only the region of the window that was scrolled
-
-			if vim.b[bufnr][enabled_bufscoped_variable_name] then
-				opts.debounced_invalidate_buffer(bufnr)
-			end
-		end,
-	})
 end
 
 ---@class nvim_relative_date.EnableBufferOpts
@@ -58,6 +44,15 @@ function M.enable_buffer(opts)
 		group = augroup,
 		buffer = opts.bufnr,
 		callback = function()
+			opts.debounced_invalidate_buffer(opts.bufnr)
+		end,
+	})
+
+	vim.api.nvim_create_autocmd("WinScrolled", {
+		group = augroup,
+		buffer = opts.bufnr,
+		callback = function()
+			-- TODO: update only the region of the window that was scrolled
 			opts.debounced_invalidate_buffer(opts.bufnr)
 		end,
 	})
