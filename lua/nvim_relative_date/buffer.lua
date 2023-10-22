@@ -1,10 +1,15 @@
 local M = {}
 
 local relative_date = require("nvim_relative_date.relative_date")
+local relative_date_common = require("nvim_relative_date.common")
 
 local namespace_id = vim.api.nvim_create_namespace("nvim_relative_date")
 
 local iso_date_pattern = "(%d%d%d%d)%-(%d%d)%-(%d%d)"
+
+-- Name of a buffer-scoped variable, that, when set, means the plugin
+-- is attached to that buffer.
+local buf_scoped_attached_variable_name = "nvim_relative_date_attached"
 
 ---@param bufnr integer
 ---@param start_line integer 1-based, inclusive
@@ -46,6 +51,52 @@ function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highli
 			end
 		end
 	end
+end
+
+---@class nvim_relative_date.AttachBufferOpts
+---@field bufnr integer
+---@field invalidate_buffer fun(bufnr: integer): nil
+---@field debounced_invalidate_buffer fun(bufnr: integer): nil
+
+---@param opts nvim_relative_date.AttachBufferOpts
+function M.attach(opts)
+	vim.b[opts.bufnr][buf_scoped_attached_variable_name] = true
+	opts.invalidate_buffer(opts.bufnr)
+
+	-- TODO: use nvim_buf_attach (`on_lines`) to only invalidate the lines that changed
+	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+		group = relative_date_common.augroup,
+		buffer = opts.bufnr,
+		callback = function()
+			opts.debounced_invalidate_buffer(opts.bufnr)
+		end,
+	})
+
+	vim.api.nvim_create_autocmd("WinScrolled", {
+		group = relative_date_common.augroup,
+		buffer = opts.bufnr,
+		callback = function()
+			-- TODO: update only the region of the window that was scrolled
+			opts.debounced_invalidate_buffer(opts.bufnr)
+		end,
+	})
+end
+
+---@param bufnr integer
+function M.detach(bufnr)
+	vim.api.nvim_buf_clear_namespace(bufnr, namespace_id, 0, -1)
+	vim.b[bufnr][buf_scoped_attached_variable_name] = nil
+
+	vim.api.nvim_clear_autocmds({
+		group = relative_date_common.augroup,
+		buffer = bufnr,
+	})
+end
+
+---@param bufnr integer
+---@return boolean
+function M.is_attached(bufnr)
+	return vim.b[bufnr][buf_scoped_attached_variable_name] ~= nil
 end
 
 return M

@@ -1,6 +1,5 @@
 local extmarks_utils = require("test.nvim_relative_date.relative_date_extmarks_utils")
 local nvim_relative_date = require("nvim_relative_date")
-local nvim_relative_date_autocmd = require("nvim_relative_date.autocmd")
 local async_util = require("plenary.async.util")
 local async_tests = require("plenary.async.tests")
 
@@ -151,13 +150,10 @@ async_tests.it("only updates the buffers that were changed", function()
 	extmarks_utils.expect_extmarks_to_match(expected_extmarks, extmarks_utils.get_all_extmarks(markdown_bufnr))
 
 	-- PART: plugin is turned off after disabling it for a given buffer
-	-- TODO: make sure disabling the plugin in a buffer automatically clears
-	-- every extmark in the buffer
 	vim.api.nvim_buf_set_lines(markdown_bufnr, 0, -1, true, {})
 	vim.cmd.doautocmd("TextChanged")
-	sleep_through_debounce()
 
-	nvim_relative_date_autocmd.disable_buffer(markdown_bufnr)
+	nvim_relative_date.detach_buffer(markdown_bufnr)
 	vim.api.nvim_buf_set_lines(markdown_bufnr, 0, -1, true, lines)
 	vim.cmd.doautocmd("TextChanged")
 

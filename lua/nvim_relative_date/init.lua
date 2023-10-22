@@ -2,9 +2,7 @@ local M = {}
 
 local timers = require("nvim_relative_date.timers")
 local relative_date_buffer = require("nvim_relative_date.buffer")
-local relative_date_autocmd = require("nvim_relative_date.autocmd")
-
--- TODO: allow enabling/disabling per buffer
+local relative_date_common = require("nvim_relative_date.common")
 
 ---@type nvim_relative_date.FullConfig
 local current_config = nil
@@ -15,8 +13,13 @@ local function get_visible_window_lines_range(winid)
 	return vim.fn.line("w0", winid), vim.fn.line("w$", winid)
 end
 
+---@param bufnr integer
 local function show_relative_dates(bufnr)
 	if not vim.api.nvim_buf_is_valid(bufnr) then
+		return
+	end
+
+	if not relative_date_buffer.is_attached(bufnr) then
 		return
 	end
 
@@ -55,18 +58,58 @@ local function debounced_show_relative_dates(bufid)
 	debounced_update_buffer(bufid)
 end
 
+local function detach_all_buffers()
+	vim.api.nvim_clear_autocmds({ group = relative_date_common.augroup })
+
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_valid(bufnr) and relative_date_buffer.is_attached(bufnr) then
+			relative_date_buffer.detach(bufnr)
+		end
+	end
+end
+
 ---@param config nvim_relative_date.Config?
 function M.setup(config)
+	if current_config ~= nil then
+		detach_all_buffers()
+	end
+
 	current_config = vim.tbl_extend("force", require("nvim_relative_date.config").default, config or {})
 
-	-- TODO: clear all extmarks in buffers and previous autocmds
+	vim.api.nvim_create_autocmd("FileType", {
+		group = relative_date_common.augroup,
+		pattern = vim.fn.join(current_config.filetypes, ","),
+		callback = function(opt)
+			local bufnr = opt.buf
 
-	relative_date_autocmd.setup({
-		filetypes = current_config.filetypes,
-		should_enable_buffer = current_config.should_enable_buffer,
-		invalidate_buffer = show_relative_dates,
-		debounced_invalidate_buffer = debounced_show_relative_dates,
+			if current_config.should_enable_buffer(bufnr) then
+				M.attach_buffer(bufnr)
+			end
+		end,
 	})
+end
+
+---@param bufnr integer
+function M.attach_buffer(bufnr)
+	relative_date_buffer.attach({
+		bufnr = bufnr,
+		debounced_invalidate_buffer = debounced_show_relative_dates,
+		invalidate_buffer = show_relative_dates,
+	})
+end
+
+---@param bufnr integer
+function M.detach_buffer(bufnr)
+	relative_date_buffer.detach(bufnr)
+end
+
+---@param bufnr integer
+function M.toggle_buffer(bufnr)
+	if relative_date_buffer.is_attached(bufnr) then
+		M.detach_buffer(bufnr)
+	else
+		M.attach_buffer(bufnr)
+	end
 end
 
 return M
