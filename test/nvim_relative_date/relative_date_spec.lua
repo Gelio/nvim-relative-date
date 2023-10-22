@@ -1,4 +1,4 @@
-local relative_date = require("nvim-relative-date.relative_date")
+local relative_date = require("nvim_relative_date.relative_date")
 
 describe("get_relative_date", function()
 	describe("when current date is in the middle of the year", function()

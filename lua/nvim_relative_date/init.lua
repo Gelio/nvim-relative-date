@@ -1,8 +1,8 @@
 local M = {}
 
-local timers = require("nvim-relative-date.timers")
-local relative_date_buffer = require("nvim-relative-date.buffer")
-local relative_date_autocmd = require("nvim-relative-date.autocmd")
+local timers = require("nvim_relative_date.timers")
+local relative_date_buffer = require("nvim_relative_date.buffer")
+local relative_date_autocmd = require("nvim_relative_date.autocmd")
 
 -- TODO: allow enabling/disabling per buffer
 

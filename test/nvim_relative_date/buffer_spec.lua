@@ -1,5 +1,5 @@
-local relative_date_buffer = require("nvim-relative-date.buffer")
-local extmarks_utils = require("test.nvim-relative-date.relative_date_extmarks_utils")
+local relative_date_buffer = require("nvim_relative_date.buffer")
+local extmarks_utils = require("test.nvim_relative_date.relative_date_extmarks_utils")
 
 describe("show_relative_dates_in_line_range", function()
 	it("sets the extmarks for the dates in the line range", function()

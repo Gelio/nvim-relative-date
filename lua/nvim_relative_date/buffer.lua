@@ -1,8 +1,8 @@
 local M = {}
 
-local relative_date = require("nvim-relative-date.relative_date")
+local relative_date = require("nvim_relative_date.relative_date")
 
-local namespace_id = vim.api.nvim_create_namespace("nvim-relative-date")
+local namespace_id = vim.api.nvim_create_namespace("nvim_relative_date")
 
 local iso_date_pattern = "(%d%d%d%d)%-(%d%d)%-(%d%d)"
 

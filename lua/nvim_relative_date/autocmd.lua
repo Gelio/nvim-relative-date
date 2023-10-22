@@ -1,6 +1,6 @@
 local M = {}
 
-local augroup = vim.api.nvim_create_augroup("nvim-relative-date", {})
+local augroup = vim.api.nvim_create_augroup("nvim_relative_date", {})
 
 ---@class nvim_relative_date.AutocmdSetupOpts
 ---@field filetypes string[]
@@ -38,6 +38,7 @@ end
 function M.enable_buffer(opts)
 	opts.invalidate_buffer(opts.bufnr)
 
+	-- TODO: use nvim_buf_attach (`on_lines`) to only invalidate the lines that changed
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 		group = augroup,
 		buffer = opts.bufnr,

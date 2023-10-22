@@ -1,6 +1,6 @@
-local extmarks_utils = require("test.nvim-relative-date.relative_date_extmarks_utils")
-local nvim_relative_date = require("nvim-relative-date")
-local nvim_relative_date_autocmd = require("nvim-relative-date.autocmd")
+local extmarks_utils = require("test.nvim_relative_date.relative_date_extmarks_utils")
+local nvim_relative_date = require("nvim_relative_date")
+local nvim_relative_date_autocmd = require("nvim_relative_date.autocmd")
 local async_util = require("plenary.async.util")
 local async_tests = require("plenary.async.tests")
 
