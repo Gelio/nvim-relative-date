@@ -35,9 +35,21 @@ I hope to finish it by %s
 	return test_text
 end
 
+local debounce_ms = 100
+
+local function setup_plugin()
+	nvim_relative_date.setup({
+		debounce_ms = debounce_ms,
+	})
+end
+
+local function sleep_through_debounce()
+	async_util.sleep(debounce_ms)
+end
+
 describe("updates extmarks after a delay", function()
 	async_tests.it("when modifying the buffer", function()
-		nvim_relative_date.setup()
+		setup_plugin()
 
 		local bufnr = vim.api.nvim_create_buf(true, false)
 		vim.bo[bufnr].filetype = "markdown"
@@ -54,13 +66,13 @@ describe("updates extmarks after a delay", function()
 
 		assert.are.equal(0, #extmarks_utils.get_all_extmarks(bufnr))
 
-		async_util.sleep(300)
+		sleep_through_debounce()
 
 		extmarks_utils.expect_extmarks_to_match(expected_extmarks, extmarks_utils.get_all_extmarks(bufnr))
 	end)
 
 	async_tests.it("when scrolling", function()
-		nvim_relative_date.setup()
+		setup_plugin()
 
 		local bufnr = vim.api.nvim_create_buf(true, false)
 		vim.bo[bufnr].filetype = "markdown"
@@ -77,7 +89,7 @@ describe("updates extmarks after a delay", function()
 
 		assert.are.equal(0, #extmarks_utils.get_all_extmarks(bufnr))
 
-		async_util.sleep(300)
+		sleep_through_debounce()
 
 		extmarks_utils.expect_extmarks_to_match({
 			-- NOTE: only the extmark on the first line should be visible, since the
@@ -88,14 +100,14 @@ describe("updates extmarks after a delay", function()
 		vim.api.nvim_win_set_height(0, 10)
 		vim.cmd.doautocmd("WinScrolled")
 
-		async_util.sleep(300)
+		sleep_through_debounce()
 
 		extmarks_utils.expect_extmarks_to_match(expected_extmarks, extmarks_utils.get_all_extmarks(bufnr))
 	end)
 end)
 
 async_tests.it("only updates the buffers that were changed", function()
-	nvim_relative_date.setup()
+	setup_plugin()
 
 	local js_bufnr = vim.api.nvim_create_buf(true, false)
 	vim.bo[js_bufnr].filetype = "javascript"
@@ -119,7 +131,7 @@ async_tests.it("only updates the buffers that were changed", function()
 	vim.api.nvim_buf_set_lines(js_bufnr, 0, -1, true, lines)
 	vim.cmd.doautocmd("TextChanged")
 
-	async_util.sleep(300)
+	sleep_through_debounce()
 
 	-- NOTE: js buffers are not enabled automatically
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(js_bufnr))
@@ -131,7 +143,7 @@ async_tests.it("only updates the buffers that were changed", function()
 	vim.api.nvim_buf_set_lines(markdown_bufnr, 0, -1, true, lines)
 	vim.cmd.doautocmd("TextChanged")
 
-	async_util.sleep(300)
+	sleep_through_debounce()
 
 	-- NOTE: js buffers are not enabled automatically
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(js_bufnr))
@@ -143,13 +155,13 @@ async_tests.it("only updates the buffers that were changed", function()
 	-- every extmark in the buffer
 	vim.api.nvim_buf_set_lines(markdown_bufnr, 0, -1, true, {})
 	vim.cmd.doautocmd("TextChanged")
-	async_util.sleep(300)
+	sleep_through_debounce()
 
 	nvim_relative_date_autocmd.disable_buffer(markdown_bufnr)
 	vim.api.nvim_buf_set_lines(markdown_bufnr, 0, -1, true, lines)
 	vim.cmd.doautocmd("TextChanged")
 
-	async_util.sleep(300)
+	sleep_through_debounce()
 
 	-- NOTE: js buffers are not enabled automatically
 	assert.are.equal(0, #extmarks_utils.get_all_extmarks(js_bufnr))
