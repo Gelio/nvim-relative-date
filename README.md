@@ -36,7 +36,7 @@ With nvim-relative-date:
   use {
       "Gelio/nvim-relative-date",
       config = function()
-           require("cmp_natdat").setup()
+           require("nvim_relative_date").setup()
       end,
       ft = "markdown",
       cmd = { "RelativeDateAttach", "RelativeDateToggle" },
