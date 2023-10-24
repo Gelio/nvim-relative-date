@@ -90,3 +90,11 @@ nvim-relative-date exposes the following Ex commands:
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Recommended plugins
+
+nvim-relative-date works well with:
+
+- [cmp-natdat](https://github.com/Gelio/cmp-natdat) - a
+  [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) source for expanding relative
+  dates into ISO dates.
