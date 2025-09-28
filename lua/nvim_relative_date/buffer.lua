@@ -72,7 +72,7 @@ function M.attach(opts)
 		end,
 	})
 
-	vim.api.nvim_create_autocmd("WinScrolled", {
+	vim.api.nvim_create_autocmd({ "WinScrolled", "BufEnter", "FocusGained" }, {
 		group = relative_date_common.augroup,
 		buffer = opts.bufnr,
 		callback = function()
